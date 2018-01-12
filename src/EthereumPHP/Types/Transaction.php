@@ -18,7 +18,7 @@ class Transaction
         string $data = null,
         int $gas = null,
         Wei $gasPrice = null,
-        int $value = null,
+        string $value = null,
         int $nonce = null
     ) {
         $this->from = $from;
@@ -28,6 +28,17 @@ class Transaction
         $this->gasPrice = $gasPrice;
         $this->value = $value;
         $this->nonce = $nonce;
+    }
+
+    private function bcdechex($dec) {
+        $last = bcmod($dec, 16);
+        $remain = bcdiv(bcsub($dec, $last), 16);
+
+        if($remain == 0) {
+            return dechex($last);
+        } else {
+            return $this->bcdechex($remain).dechex($last);
+        }
     }
 
     public function toArray(): array
@@ -50,7 +61,7 @@ class Transaction
         }
 
         if (!is_null($this->value)) {
-            $transaction['value'] = '0x'.dechex($this->value);
+            $transaction['value'] = '0x'.$this->bcdechex($this->value);
         }
 
         if (!is_null($this->nonce)) {
